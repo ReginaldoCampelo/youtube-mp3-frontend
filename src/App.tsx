@@ -20,7 +20,7 @@ function App() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ✅ Validação de link com base no tipo selecionado
+  // ✅ Validação de link com base no tipo selecionado.
   const isValidLink = useMemo(() => {
     const isWatch = url.includes("watch");
     const isPlaylist = url.includes("playlist");
