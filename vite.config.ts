@@ -8,6 +8,7 @@ export default defineConfig({
   preview: {
     port,
     host: "0.0.0.0",
+    allowedHosts: ["ytb-mp3-frontend-production.up.railway.app"],
   },
   server: {
     port,
