@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
+import cuteNinja from "./assets/hinata-cute.jpeg"; // Altere se o caminho da imagem for diferente
 
 const options = [
   { name: "Vídeo único", value: "video" },
@@ -11,10 +12,9 @@ const options = [
 
 function App() {
   const [url, setUrl] = useState("");
-  const [type, setType] = useState<"video" | "playlist">("video");
+  const [type, setType] = useState("video");
   const [folderName, setFolderName] = useState("");
-  const [title, setTitle] = useState<string | string[]>("");
-
+  const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [validating, setValidating] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -25,7 +25,7 @@ function App() {
     apiUrl !== "https://ytb-mp3-downloader-production-c686.up.railway.app/";
 
   useEffect(() => {
-    document.title = "Banana Music";
+    document.title = "🎵 Baixar MP3";
   }, []);
 
   const isValidLink = useMemo(() => {
@@ -72,7 +72,6 @@ function App() {
       setErrorMsg("Por favor, insira uma URL.");
       return;
     }
-
     if (!isValidLink) {
       setErrorMsg(
         type === "video"
@@ -120,16 +119,27 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#141022] px-4">
+    <div className="min-h-screen bg-[#0e0a1f] px-4 flex items-center justify-center">
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 flex items-center gap-4">
+        <img
+          src={cuteNinja}
+          alt="Avatar fofo"
+          className="w-20 h-20 rounded-full shadow-lg border-4 border-[#a855f7]"
+        />
+        <h1 className="text-4xl sm:text-5xl font-bold text-[#a855f7] drop-shadow-lg">
+          Naty Music
+        </h1>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-[#1f1b30] text-white p-6 sm:p-8 rounded-xl shadow-2xl space-y-6"
+        className="mt-12 w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-[#1f1b30] text-white p-6 sm:p-8 rounded-xl shadow-2xl space-y-6 border border-purple-700/20"
       >
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-[#a855f7] flex items-center justify-center gap-2">
-          🎵 Banana MP3
-        </h1>
+        <h2 className="text-2xl sm:text-3xl font-bold text-center text-[#a855f7] flex items-center justify-center gap-2">
+          <span className="text-3xl">🎵</span> Baixar MP3
+        </h2>
 
         <div className="space-y-2">
           <label className="text-sm">URL do vídeo ou playlist</label>
@@ -155,7 +165,7 @@ function App() {
                     clsx(
                       "text-sm font-medium px-4 py-2 rounded-lg text-center border cursor-pointer transition",
                       checked
-                        ? "bg-[#9b4dff] text-white border-[#a855f7]"
+                        ? "bg-[#9b4dff] text-white border-[#a855f7] shadow-[0_0_10px_#a855f7]"
                         : "bg-[#2c2543] text-gray-300 border-[#4f3d8a]"
                     )
                   }
@@ -218,15 +228,14 @@ function App() {
           </div>
         )}
 
-        {/* Botão de download */}
         <button
           onClick={handleDownload}
           disabled={loading || validating || !url || !isValidLink}
           className={clsx(
-            "w-full font-semibold py-3 px-4 rounded-lg transition flex justify-center items-center gap-2",
+            "w-full font-semibold py-3 px-4 rounded-lg transition flex justify-center items-center gap-2 text-white",
             loading || validating || !url || !isValidLink
               ? "bg-[#a855f7] opacity-50 cursor-not-allowed"
-              : "bg-[#a855f7] hover:bg-[#9333ea] cursor-pointer text-white"
+              : "bg-[#a855f7] hover:bg-[#9333ea] shadow-[0_0_8px_#a855f7]"
           )}
         >
           {loading ? (
@@ -257,44 +266,26 @@ function App() {
           )}
         </button>
 
-        {/* Mensagem de erro dinâmica */}
-        {/* Mensagens de erro de input inválido */}
-        {!loading && !validating && (
-          <>
-            {!url && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-yellow-400 font-medium flex items-center gap-2"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5 flex-shrink-0 text-yellow-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 8a1 1 0 012 0v4a1 1 0 01-2 0V8zm1 6a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Por favor, insira uma URL.
-              </motion.div>
-            )}
-
-            {url && !isValidLink && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-sm text-red-400 font-medium flex items-center gap-2"
-              >
-                {type === "video"
-                  ? "❌ A URL deve ser de um vídeo do YouTube (ex: watch?v=...)."
-                  : "❌ A URL deve ser de uma playlist do YouTube (ex: playlist?list=...)."}
-              </motion.div>
-            )}
-          </>
+        {!loading && !validating && (!url || !isValidLink) && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-yellow-400 font-medium flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-5 h-5 flex-shrink-0 text-yellow-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 8a1 1 0 012 0v4a1 1 0 01-2 0V8zm1 6a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Por favor, insira uma URL.
+          </motion.div>
         )}
 
         {successMsg && (
