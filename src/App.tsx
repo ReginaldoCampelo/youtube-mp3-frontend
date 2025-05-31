@@ -21,10 +21,11 @@ function App() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const apiUrl = import.meta.env.VITE_API_URL;
-  const isLocalhost = apiUrl !== "https://ytb-mp3-downloader-production-c686.up.railway.app/";
+  const isLocalhost =
+    apiUrl !== "https://ytb-mp3-downloader-production-c686.up.railway.app/";
 
   useEffect(() => {
-    document.title = "Baixar MP3";
+    document.title = "Banana Music";
   }, []);
 
   const isValidLink = useMemo(() => {
@@ -64,11 +65,20 @@ function App() {
       }
     };
     fetchTitle();
-  }, [url, type]);
+  }, [url, type, apiUrl]);
 
   const handleDownload = async () => {
-    if (!url || !isValidLink) {
-      setErrorMsg("Informe uma URL válida para o tipo selecionado");
+    if (!url) {
+      setErrorMsg("Por favor, insira uma URL.");
+      return;
+    }
+
+    if (!isValidLink) {
+      setErrorMsg(
+        type === "video"
+          ? "A URL deve ser de um vídeo do YouTube (ex: watch?v=...)."
+          : "A URL deve ser de uma playlist do YouTube (ex: playlist?list=...)."
+      );
       return;
     }
     setLoading(true);
@@ -118,7 +128,7 @@ function App() {
         className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-[#1f1b30] text-white p-6 sm:p-8 rounded-xl shadow-2xl space-y-6"
       >
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-[#a855f7] flex items-center justify-center gap-2">
-          🎵 Baixar MP3
+          🎵 Banana MP3
         </h1>
 
         <div className="space-y-2">
@@ -208,6 +218,7 @@ function App() {
           </div>
         )}
 
+        {/* Botão de download */}
         <button
           onClick={handleDownload}
           disabled={loading || validating || !url || !isValidLink}
@@ -245,6 +256,58 @@ function App() {
             "Iniciar download"
           )}
         </button>
+
+        {/* Mensagem de erro dinâmica */}
+        {/* Mensagens de erro de input inválido */}
+        {!loading && !validating && (
+          <>
+            {!url && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-yellow-400 font-medium flex items-center gap-2"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 16h-1v-4h-1m1-4h.01M12 9v2m0 4h.01M12 17h.01"
+                  />
+                </svg>
+                Por favor, insira uma URL.
+              </motion.div>
+            )}
+
+            {url && !isValidLink && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-red-400 font-medium flex items-center gap-2"
+              >
+                {type === "video"
+                  ? "❌ A URL deve ser de um vídeo do YouTube (ex: watch?v=...)."
+                  : "❌ A URL deve ser de uma playlist do YouTube (ex: playlist?list=...)."}
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {/* Mensagem de erro por falha no fetch */}
+        {errorMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-red-400 font-medium flex items-center gap-2"
+          >
+            ❌ {errorMsg}
+          </motion.div>
+        )}
 
         {successMsg && (
           <motion.div
