@@ -8,7 +8,7 @@ export default defineConfig({
   preview: {
     port,
     host: "0.0.0.0",
-    allowedHosts: ["banana-music.up.railway.app"],
+    allowedHosts: ["naty.up.railway.app"],
   },
   server: {
     port,
