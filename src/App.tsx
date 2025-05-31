@@ -20,43 +20,40 @@ function App() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ✅ Validação de link com base no tipo selecionado
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const isLocalhost = apiUrl !== "https://ytb-mp3-downloader-production-c686.up.railway.app/";
+
+  useEffect(() => {
+    document.title = "Baixar MP3";
+  }, []);
+
   const isValidLink = useMemo(() => {
     const isWatch = url.includes("watch");
     const isPlaylist = url.includes("playlist");
-
     if (!url) return false;
-
-    if (type === "video" && isWatch) return true;
-    if (type === "playlist" && isPlaylist) return true;
-
-    return false;
+    return (type === "video" && isWatch) || (type === "playlist" && isPlaylist);
   }, [url, type]);
 
   useEffect(() => {
     const fetchTitle = async () => {
       const isWatch = url.includes("watch");
       const isPlaylist = url.includes("playlist");
-      const isValidLink =
+      const isValid =
         (type === "video" && isWatch) || (type === "playlist" && isPlaylist);
-
-      if (!url || !isValidLink) {
+      if (!url || !isValid) {
         setTitle("");
         return;
       }
-
       setValidating(true);
       try {
-        const res = await fetch("http://localhost:3000/youtube/info", {
+        const res = await fetch(`${apiUrl}youtube/info`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url }),
         });
         const data = await res.json();
-
         if (typeof data?.title === "string" && data.title.includes("\n")) {
-          const titles = data.title.split("\n").filter(Boolean);
-          setTitle(titles);
+          setTitle(data.title.split("\n").filter(Boolean));
         } else {
           setTitle(data?.title || "");
         }
@@ -66,36 +63,24 @@ function App() {
         setValidating(false);
       }
     };
-
     fetchTitle();
   }, [url, type]);
 
   const handleDownload = async () => {
-    if (!url) {
-      setErrorMsg("Informe uma URL válida");
+    if (!url || !isValidLink) {
+      setErrorMsg("Informe uma URL válida para o tipo selecionado");
       return;
     }
-
-    if (!isValidLink) {
-      setErrorMsg(
-        "URL inválida para o tipo selecionado. Verifique se o link é de vídeo único ou playlist."
-      );
-      return;
-    }
-
     setLoading(true);
     setErrorMsg("");
     setSuccessMsg("");
-
     try {
-      const res = await fetch("http://localhost:3000/youtube/download", {
+      const res = await fetch(`${apiUrl}youtube/download`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ url, type, folderName }),
       });
-
       if (!res.ok) throw new Error("Erro na resposta");
-
       if (type === "video") {
         const blob = await res.blob();
         const a = document.createElement("a");
@@ -104,8 +89,17 @@ function App() {
         a.click();
         setSuccessMsg("✅ Download concluído!");
       } else {
-        const data = await res.json();
-        setSuccessMsg(`✅ Playlist salva na pasta: ${data.path}`);
+        if (isLocalhost) {
+          const data = await res.json();
+          setSuccessMsg(`✅ Playlist salva em: ${data.path}`);
+        } else {
+          const blob = await res.blob();
+          const a = document.createElement("a");
+          a.href = window.URL.createObjectURL(blob);
+          a.download = `${folderName || "playlist"}.zip`;
+          a.click();
+          setSuccessMsg("✅ Playlist ZIP baixada com sucesso!");
+        }
       }
     } catch (err) {
       console.error(err);
@@ -115,34 +109,16 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    if (!url) {
-      setErrorMsg("");
-      return;
-    }
-
-    const isWatch = url.includes("watch");
-    const isPlaylist = url.includes("playlist");
-
-    if (type === "video" && !isWatch) {
-      setErrorMsg("URL inválida para vídeo único. Deve conter 'watch'.");
-    } else if (type === "playlist" && !isPlaylist) {
-      setErrorMsg("URL inválida para playlist. Deve conter 'playlist'.");
-    } else {
-      setErrorMsg("");
-    }
-  }, [url, type]);
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#141022] px-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-xl bg-[#1f1b30] text-white p-8 rounded-xl shadow-2xl space-y-6"
+        className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-[#1f1b30] text-white p-6 sm:p-8 rounded-xl shadow-2xl space-y-6"
       >
-        <h1 className="text-3xl font-bold text-center text-[#a855f7] flex items-center justify-center gap-2">
-          🎵 Baixar do YouTube
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-[#a855f7] flex items-center justify-center gap-2">
+          🎵 Baixar MP3
         </h1>
 
         <div className="space-y-2">
