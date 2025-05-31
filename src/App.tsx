@@ -165,7 +165,7 @@ function App() {
                     clsx(
                       "text-sm font-medium px-4 py-2 rounded-lg text-center border cursor-pointer transition",
                       checked
-                        ? "bg-[#9b4dff] text-white border-[#a855f7] shadow-[0_0_10px_#a855f7]"
+                        ? "bg-[#9b4dff] text-white border-[#a855f7]"
                         : "bg-[#2c2543] text-gray-300 border-[#4f3d8a]"
                     )
                   }
@@ -218,7 +218,7 @@ function App() {
         {Array.isArray(title) && title.length > 0 && type === "playlist" && (
           <div className="text-sm text-purple-300">
             🎧 <span className="font-semibold">Títulos detectados:</span>
-            <ul className="mt-2 space-y-1 list-disc list-inside pl-1">
+            <ul className="mt-2 max-h-48 overflow-y-auto pr-2 space-y-1 list-disc list-inside pl-1 scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-transparent">
               {title.map((track, index) => (
                 <li key={index} className="ml-4 text-purple-200">
                   {track}
@@ -228,14 +228,15 @@ function App() {
           </div>
         )}
 
+        {/* Botão de download */}
         <button
           onClick={handleDownload}
           disabled={loading || validating || !url || !isValidLink}
           className={clsx(
-            "w-full font-semibold py-3 px-4 rounded-lg transition flex justify-center items-center gap-2 text-white",
+            "w-full font-semibold py-3 px-4 rounded-lg transition flex justify-center items-center gap-2",
             loading || validating || !url || !isValidLink
               ? "bg-[#a855f7] opacity-50 cursor-not-allowed"
-              : "bg-[#a855f7] hover:bg-[#9333ea] shadow-[0_0_8px_#a855f7]"
+              : "bg-[#a855f7] hover:bg-[#9333ea] cursor-pointer text-white"
           )}
         >
           {loading ? (
@@ -266,26 +267,44 @@ function App() {
           )}
         </button>
 
-        {!loading && !validating && (!url || !isValidLink) && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-sm text-yellow-400 font-medium flex items-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5 flex-shrink-0 text-yellow-400"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 8a1 1 0 012 0v4a1 1 0 01-2 0V8zm1 6a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Por favor, insira uma URL.
-          </motion.div>
+        {/* Mensagem de erro dinâmica */}
+        {/* Mensagens de erro de input inválido */}
+        {!loading && !validating && (
+          <>
+            {!url && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-yellow-400 font-medium flex items-center gap-2"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5 flex-shrink-0 text-yellow-400"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10A8 8 0 11 2 10a8 8 0 0116 0zM9 8a1 1 0 012 0v4a1 1 0 01-2 0V8zm1 6a1.25 1.25 0 100-2.5A1.25 1.25 0 0010 14z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Por favor, insira uma URL.
+              </motion.div>
+            )}
+
+            {url && !isValidLink && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-sm text-red-400 font-medium flex items-center gap-2"
+              >
+                {type === "video"
+                  ? "❌ A URL deve ser de um vídeo do YouTube (ex: watch?v=...)."
+                  : "❌ A URL deve ser de uma playlist do YouTube (ex: playlist?list=...)."}
+              </motion.div>
+            )}
+          </>
         )}
 
         {successMsg && (
